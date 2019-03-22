@@ -10,7 +10,8 @@ def fetch_data(path):
         "ASSORTMENT_CATEGORY1",
         "ASSORTMENT_CATEGORY2",
         "ASSORTMENT_CATEGORY3",
-        "ASSORTMENT_CATEGORY4"
+        "ASSORTMENT_CATEGORY4",
+        "MAIN_IMAGE_URL",
         ]
     df = pd.read_excel(path, sheet_name=0, encoding='windows-1252')
     return df[categories].dropna(subset=["PLANNING_WEEK"])
@@ -45,7 +46,6 @@ def get_hashtag(row):
 
 def get_hashtag_from_title(title):
     words = title.split()
-    print(words)
     return "{}".format(words[0])
 
 def is_valid_hashtag(hashtag):
@@ -59,9 +59,9 @@ def is_valid_hashtag(hashtag):
         return False
     return True
 
-print("Starting HashtagExtractor")
-raw_data = fetch_data("all-products_short.xlsx")
-filtered_data = filter_by_week(raw_data,"2019-W11")
-result = extract_hashtags(filtered_data)
-print(result[["TITLE","HASHTAGS"]])
+def get_data(week):
+    print("Starting HashtagExtractor")
+    raw_data = fetch_data("all-products_short.xlsx")
+    filtered_data = filter_by_week(raw_data,week)
+    return extract_hashtags(filtered_data)
 
