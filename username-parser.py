@@ -10,7 +10,8 @@ connector = MariaDb(db="db")
 crawler = InsCrawler(has_screen=False)
 
 
-ADD_USER = ("INSERT INTO user (username, hashtag, img,post_num,follower_num,following_num) VALUES (%s, %s,%s,%s, %s,%s)")
+ADD_USER = ("INSERT IGNORE INTO user (username, hashtag, img,post_num,follower_num,following_num) VALUES (%s, %s,%s,%s, %s,%s)")
+ADD_POST = ("INSERT INTO posts(id, img, username) VALUES (%s, %s,%s)")
 
 def open_tag_data(file):
     with open(file, 'r', encoding='utf8') as f:
@@ -31,7 +32,10 @@ def process_raw_data(raw):
 raw = open_tag_data("instaparse.json")
 tuples = process_raw_data(raw)
 for dataset in tuples:
-    profile_data =crawler.get_data_from_post(dataset[1])
+    data =crawler.get_data_from_post(dataset[1],3)
+    profile_data = data["user"]
+    post_list = data["posts"]
+
     data =  (
             profile_data["name"],
             "#"+dataset[0],
@@ -41,11 +45,13 @@ for dataset in tuples:
             profile_data["following_num"]
         )
     try:
-        connector.execute_ex(ADD_USER,data)
-    except e:
+        user_id = connector.execute_ex(ADD_USER,data)
+        for post in post_list:
+            key_name = post["key"].replace("https://www.instagram.com/p","").replace("/","")
+            post_tuple = (key_name,post["img_url"], profile_data["name"])
+            connector.execute_ex(ADD_POST, post_tuple)
+    except Exception as e:
         print(e)
-        pass
-    break
 
 sys.exit()
 
