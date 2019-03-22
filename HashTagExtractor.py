@@ -26,7 +26,7 @@ def extract_hashtags(data_frame):
 
 def get_hashtag(row):
     #TODO make more sophisticated
-    hashtag = "UKNOWN"
+    hashtag = get_hashtag_from_title(row["TITLE"])
     potential_rows =["ASSORTMENT_CATEGORY4","ASSORTMENT_CATEGORY3","ASSORTMENT_CATEGORY2","ASSORTMENT_CATEGORY1"]
     for category in potential_rows:
         if is_valid_hashtag(row[category]):
@@ -41,7 +41,12 @@ def get_hashtag(row):
     hashtag = "#" + hashtag.replace(" ","#")
 
 
-    return hashtag
+    return hashtag.strip()
+
+def get_hashtag_from_title(title):
+    words = title.split()
+    print(words)
+    return "{}".format(words[0])
 
 def is_valid_hashtag(hashtag):
     if isinstance(hashtag, str) is False:
@@ -58,5 +63,5 @@ print("Starting HashtagExtractor")
 raw_data = fetch_data("all-products_short.xlsx")
 filtered_data = filter_by_week(raw_data,"2019-W11")
 result = extract_hashtags(filtered_data)
-print(result.head())
+print(result[["TITLE","HASHTAGS"]])
 
