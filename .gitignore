@@ -1,3 +1,6 @@
 *.xlsx
 /virtualenv/*
 .vscode
+*pyc
+*.bak
+*.ini
